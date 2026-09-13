@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "lib": ["ES2024", "DOM"],
+    "outDir": "lib/types",
+    "rootDir": "src",
+    "emitDeclarationOnly": true,
+    "skipLibCheck": true,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext"
+  },
+  "include": ["src/client/**/*", "src/stubs.d.ts"],
+  "exclude": ["node_modules", "lib", "dist"]
+}

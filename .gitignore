@@ -1,0 +1,7 @@
+node_modules
+dist
+.DS_Store
+.env
+.env.local
+*.log
+# lib/ is intentionally committed — DSH loads lib/index.js + lib/client.js directly from git/npm

@@ -1,0 +1,9 @@
+# dsh-plugin-github-manager — mounts the Host half into the profile composition.
+# The Client half is discovered automatically from `dsh.client` in package.json.
+- insert:
+    - id: github-manager
+      name: dsh-plugin-github-manager
+      config:
+        defaultAccountId: ""
+        cacheSeconds: 45
+        maxConcurrentRequests: 6

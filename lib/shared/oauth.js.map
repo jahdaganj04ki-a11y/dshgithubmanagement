@@ -1,0 +1,1 @@
+{"version":3,"file":"oauth.js","sourceRoot":"","sources":["../../src/shared/oauth.ts"],"names":[],"mappings":"AAAA,8EAA8E;AAE9E,MAAM,CAAC,MAAM,sBAAsB,GAAG,sCAAsC,CAAA;AAC5E,MAAM,CAAC,MAAM,uBAAuB,GAAG,6CAA6C,CAAA;AACpF,MAAM,CAAC,MAAM,oBAAoB,GAAG,0CAA0C,CAAA;AAuB9E,MAAM,UAAU,eAAe,CAAC,CAAsB;IACpD,OAAQ,CAAwB,CAAC,KAAK,KAAK,SAAS,CAAA;AACtD,CAAC"}
