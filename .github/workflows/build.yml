@@ -1,0 +1,79 @@
+name: Build DSH Plugin
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install
+        run: bun install --frozen-lockfile
+
+      - name: Typecheck (host + client)
+        run: bun run typecheck
+
+      - name: Build (tsc + tsdown → lib/index.js + lib/client.js)
+        run: bun run build
+
+      - name: Verify DSH bundle
+        run: |
+          echo "== lib =="; ls -lh lib/
+          test -f lib/index.js || (echo "missing lib/index.js" && exit 1)
+          test -f lib/client.js || (echo "missing lib/client.js" && exit 1)
+          grep -q 'window.__ModuleLoader__' lib/client.js || (echo "client.js missing __ModuleLoader__ closure" && exit 1)
+          echo "== npm pack dry-run =="; npm pack --dry-run
+          test -f cordis.patch.yml || (echo "missing cordis.patch.yml" && exit 1)
+          node -e "const p=require('./package.json'); if(!p.dsh?.bundle?.patch) throw new Error('missing dsh.bundle.patch'); if(!p.dsh?.client) throw new Error('missing dsh.client'); console.log('dsh manifest ok:', p.dsh)"
+
+      - name: Pack tgz (installable artifact)
+        run: |
+          npm pack
+          ls -lh *.tgz
+          echo "TGZ=$(ls *.tgz)" >> $GITHUB_ENV
+
+      - name: Upload lib artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dsh-plugin-lib
+          path: lib/
+          if-no-files-found: error
+
+      - name: Upload tgz artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dsh-plugin-tgz
+          path: "*.tgz"
+          if-no-files-found: error
+
+      # Auto-release on version tags v* (e.g. git tag v0.1.0 && git push --tags)
+      - name: Create GitHub Release (tags only)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: "*.tgz"
+          generate_release_notes: true
+          fail_on_unmatched_files: true
